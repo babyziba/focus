@@ -8,13 +8,15 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query, HTTPExceptio
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+
 PING_INTERVAL = 15
 IDLE_DROP_SECS = 60
 MAX_ROOM_USERS = 200
 MAX_MSG_RATE_HZ = 10
 
 ROOM_TOKENS = dict(pair.split(":") for pair in os.getenv("ROOMS", "").split(",") if pair)
-DYNAMIC_TOKENS: dict[str, str] = {}         # <-- keep dynamic tokens
+DYNAMIC_TOKENS: dict[str, str] = {}   
+
 
 def _new_code(n=5) -> str:
     return "".join(secrets.choice(ascii_uppercase) for _ in range(n))
@@ -23,8 +25,10 @@ def _new_code(n=5) -> str:
 app = FastAPI(title="Group Pomodoro Rooms Relay", version="0.2")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.getenv("CORS_ORIGINS", "*").split(","),
-    allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
+    allow_origins=["*"],
+    allow_credentials=False,  # IMPORTANT when using "*"
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @dataclass
