@@ -121,6 +121,12 @@ async def create_room():
     await hub.get_or_create(code)
     return JSONResponse({"code": code, "token": token})
 
+def _auth_room(room: str, token: str | None):
+    expect = ROOM_TOKENS.get(room) or DYNAMIC_TOKENS.get(room)
+    if expect is None:
+        return True          # rooms not in the token maps are open
+    return expect == (token or "")
+
 @app.websocket("/ws")
 async def ws_endpoint(websocket: WebSocket,
                       room: str = Query(...), user: str = Query(...),
